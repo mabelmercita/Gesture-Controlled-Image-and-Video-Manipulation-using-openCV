@@ -1,0 +1,84 @@
+import cv2
+from cvzone.HandTrackingModule import HandDetector
+import pyautogui
+
+#WEBCAM - dimensions - 1280x720
+wb=cv2.VideoCapture(0)
+wb.set(3,1280)
+wb.set(4,720)
+
+handDetector = HandDetector(detectionCon=0.8)#detects 2 hands with 80% confidence
+startDist = None#the starting distance value is declared outside the loop
+zoom_img = 0#the zoom value is declared outside the loop
+x, y = 500, 500 #the origin points is declared outside the loop
+
+while True:
+    a,img = wb.read()#reads the live webcam image and stores it in img
+    hands,img = handDetector.findHands(img)#returns a list with the information of two hands
+    img1=cv2.imread('test.jpg')#displays the image
+    
+    if len(hands)==2:#if the number of hands raised is two
+        if handDetector.fingersUp(hands[0]) == [1, 1, 0, 0, 0] and handDetector.fingersUp(hands[1]) == [1, 1, 0, 0, 0]:#if the index and thumb fingers of both hands are raised
+            
+            lmList1 = hands[0]['lmList']#landmark list of left hand
+            lmList2 = hands[1]['lmList']#landmark list of left hand
+                     
+            if startDist is None:
+                length,info,img = handDetector.findDistance(hands[0]['center'],hands[1]['center'],img)
+                #length = distance b/w the centre points of hand
+                #info = contains the origin distance b/w the hands
+                #img = live webcam
+                startDist = length
+                
+            length, info, img = handDetector.findDistance(hands[0]['center'], hands[1]['center'], img)
+            
+            # calculate the zoom range
+            zoom_img = int((length - startDist) // 2)
+            
+            # calculate the center point so that we can  place the zooming image at the center
+            x, y = info[4:]#the info list contains the central x and y at indexes 4&5
+            print(zoom_img)
+            
+              
+    elif len(hands)==1:
+                     
+                 c=0
+                 if handDetector.fingersUp(hands[0])==[0,1,0,0,0]:
+                            c+=1
+                        
+                 elif handDetector.fingersUp(hands[0])==[0,1,1,0,0]:
+                            c+=2
+                        
+                 elif handDetector.fingersUp(hands[0])==[0,1,1,1,0]:
+                            c+=3
+                
+                 if c==1:
+                    pyautogui.press('right',presses=1)
+                    
+                 elif c==2:
+                    pyautogui.press('left',presses=1)
+                    
+                 elif c==3:
+                   pyautogui.hotkey('win', 'printscreen')
+            
+    else:
+        startDist = None#to bring the zoom value to zero whenever the hands move out of the frame
+
+    try:
+        h, w, _ = img1.shape
+
+        # new height and new width
+        newH, newW = ((h + zoom_img) // 2) * 2, ((w + zoom_img) // 2) * 2# x&/ by 2 to not lose pixels
+        img1 = cv2.resize(img1, (newW, newH))
+
+        # we want the zooming image to be center and place it approx at the center
+        img[y - newH // 2:y + newH // 2, x - newW // 2:x + newW // 2] = img1# the variable size of the image 
+            
+            
+    except:
+        pass# to remove the image the image if we move out of the window
+
+    # display output
+    cv2.imshow('output', img)
+    cv2.waitKey(1)
+    
