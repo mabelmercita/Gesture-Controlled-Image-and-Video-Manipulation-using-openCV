@@ -17,9 +17,10 @@ while True:
     hands,img = handDetector.findHands(img)#returns a list with the information of two hands
     img1=cv2.imread('test.jpg')#displays the image
     
+#IMAGE MANIPULATION
     if len(hands)==2:#if the number of hands raised is two
+        
         if handDetector.fingersUp(hands[0]) == [1, 1, 0, 0, 0] and handDetector.fingersUp(hands[1]) == [1, 1, 0, 0, 0]:#if the index and thumb fingers of both hands are raised
-            
             lmList1 = hands[0]['lmList']#landmark list of left hand
             lmList2 = hands[1]['lmList']#landmark list of left hand
                      
@@ -39,27 +40,18 @@ while True:
             x, y = info[4:]#the info list contains the central x and y at indexes 4&5
             print(zoom_img)
             
-              
-    elif len(hands)==1:
+#VIDEO MANIPULATION            
+    elif len(hands)==1:#if number of hands raised is 1
                      
-                 c=0
-                 if handDetector.fingersUp(hands[0])==[0,1,0,0,0]:
-                            c+=1
+                 if handDetector.fingersUp(hands[0])==[0,1,0,0,0]:#if the index finger is raised(1)
+                            pyautogui.press('right',presses=1)#right arrow key is pressed(video is fast forwarded)
                         
-                 elif handDetector.fingersUp(hands[0])==[0,1,1,0,0]:
-                            c+=2
+                 elif handDetector.fingersUp(hands[0])==[0,1,1,0,0]:#if the index finger and middle finger are raised(2)
+                            pyautogui.press('left',presses=1)#left arrow key is pressed(video is rewinded)
                         
-                 elif handDetector.fingersUp(hands[0])==[0,1,1,1,0]:
-                            c+=3
+                 elif handDetector.fingersUp(hands[0])==[0,1,1,1,0]:#if the index finger, middle finger and ring finger are raised(3)
+                            pyautogui.hotkey('win', 'printscreen')#windows key and prtsc key are pressed together(screenshot taken)
                 
-                 if c==1:
-                    pyautogui.press('right',presses=1)
-                    
-                 elif c==2:
-                    pyautogui.press('left',presses=1)
-                    
-                 elif c==3:
-                   pyautogui.hotkey('win', 'printscreen')
             
     else:
         startDist = None#to bring the zoom value to zero whenever the hands move out of the frame
@@ -81,4 +73,3 @@ while True:
     # display output
     cv2.imshow('output', img)
     cv2.waitKey(1)
-    
