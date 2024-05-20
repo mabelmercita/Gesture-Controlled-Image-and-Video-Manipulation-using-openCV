@@ -1,6 +1,18 @@
 import cv2
 from cvzone.HandTrackingModule import HandDetector
 import pyautogui
+import time
+
+# Set the desired window size
+window_width = 800  # Replace with your desired width
+window_height = 600  # Replace with your desired height
+
+# Create a named window with a specific size
+cv2.namedWindow('output', cv2.WINDOW_NORMAL)
+cv2.resizeWindow('output', window_width, window_height)
+
+# Define a variable to track the last action time
+last_action_time = 0 
 
 #WEBCAM - dimensions - 1280x720
 wb=cv2.VideoCapture(0)
@@ -12,10 +24,13 @@ startDist = None#the starting distance value is declared outside the loop
 zoom_img = 0#the zoom value is declared outside the loop
 x, y = 500, 500 #the origin points is declared outside the loop
 
+
 while True:
+    
     a,img = wb.read()#reads the live webcam image and stores it in img
     hands,img = handDetector.findHands(img)#returns a list with the information of two hands
     img1=cv2.imread('test.jpg')#displays the image
+
     
 #IMAGE MANIPULATION
     if len(hands)==2:#if the number of hands raised is two
@@ -39,26 +54,35 @@ while True:
             # calculate the center point so that we can  place the zooming image at the center
             x, y = info[4:]#the info list contains the central x and y at indexes 4&5
             print(zoom_img)
+              
             
 #VIDEO MANIPULATION            
-    elif len(hands)==1:#if number of hands raised is 1
-                     
-                 if handDetector.fingersUp(hands[0])==[0,1,0,0,0]:#if the index finger is raised(1)
-                            pyautogui.press('right',presses=1)#right arrow key is pressed(video is fast forwarded)
-                        
-                 elif handDetector.fingersUp(hands[0])==[0,1,1,0,0]:#if the index finger and middle finger are raised(2)
-                            pyautogui.press('left',presses=1)#left arrow key is pressed(video is rewinded)
-                        
-                 elif handDetector.fingersUp(hands[0])==[0,1,1,1,0]:#if the index finger, middle finger and ring finger are raised(3)
-                            pyautogui.hotkey('win', 'printscreen')#windows key and prtsc key are pressed together(screenshot taken)
-                
+    elif len(hands) == 1:  # if the number of hands raised is 1
+     current_time = time.time()  # Get the current time
+
+     # Check the time gap since the last action (adjusted to 1 second)
+     if current_time - last_action_time >= 1.0:  # 1.0 seconds time gap
+        if handDetector.fingersUp(hands[0]) == [0, 1, 0, 0, 0]:  # if the index finger is raised(1)
+            pyautogui.press('right', presses=1)  # right arrow key is pressed (video is fast forwarded)
+
+        elif handDetector.fingersUp(hands[0]) == [0, 1, 1, 0, 0]:  # if the index finger and middle finger are raised(2)
+            pyautogui.press('left', presses=1)  # left arrow key is pressed (video is rewinded)
+
+        elif handDetector.fingersUp(hands[0]) == [1, 1, 1, 1, 1]:  # if the index finger, middle finger, and ring finger are raised(3)
+            pyautogui.hotkey('space', presses=1)  # space key is pressed (e.g., pause)
+            
+        elif handDetector.fingersUp(hands[0])==[0,1,1,1,0]:#if the index finger, middle finger and ring finger are raised(3)
+            pyautogui.hotkey('win', 'printscreen',presses = 1)#windows key and prtsc key are pressed together(screenshot taken)
+
+        # Update the last action time
+        last_action_time = current_time
+             
             
     else:
         startDist = None#to bring the zoom value to zero whenever the hands move out of the frame
 
     try:
         h, w, _ = img1.shape
-
         # new height and new width
         newH, newW = ((h + zoom_img) // 2) * 2, ((w + zoom_img) // 2) * 2# x&/ by 2 to not lose pixels
         img1 = cv2.resize(img1, (newW, newH))
