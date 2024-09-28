@@ -8,7 +8,7 @@ Detects hand gestures using a webcam.
 Zoom in/out on an image by moving hands closer or farther apart.
 Control video playback:
 Fast-forward: Raise index finger.
-Rewind: Raise index and middle fingers.
+Rewind: Raise index and middle fingers. 
 Pause/Play: Raise all fingers.
 Screenshot: Raise index, middle, and ring fingers.
 
