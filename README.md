@@ -27,3 +27,6 @@ Image Manipulation: Resizes and centers the image based on hand gestures.
 
 🙌 Acknowledgements
 Inspiration and guidance from various computer vision tutorials.
+
+📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
